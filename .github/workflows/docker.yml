@@ -6,7 +6,7 @@ on:
 
   schedule:
     # https://crontab.guru/#0_0_*_*_*
-    - "0 0 * * *"
+    - cron: "0 0 * * *"
 
 jobs:
   build:
@@ -24,6 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up QEMU
+        id: qemu
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -33,15 +34,16 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "TIMESTAMP=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
       - name: Build and push image
-        id: push
         uses: docker/build-push-action@v5.3.0
+        env:
+          SOURCE_DATE_EPOCH: ${{ env.TIMESTAMP }}
         with:
           context: .
           push: true
-          # Matches what Debian themselves provide:
-          # https://hub.docker.com/_/debian
-          platforms: linux/386,linux/amd64,linux/arm/v5,linux/arm/v7,linux/arm64,linux/mips64le,linux/ppc64le,linux/riscv64,linux/s390x
+          sbom: true
+          platforms: ${{ steps.qemu.outputs.platforms }}
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:debian,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
       - name: Attest
         uses: actions/attest-build-provenance@v1
