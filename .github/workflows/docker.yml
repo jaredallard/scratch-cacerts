@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+  schedule:
+    # https://crontab.guru/#0_0_*_*_*
+    - "0 0 * * *"
+
 jobs:
   build:
     runs-on: ubuntu-24.04
