@@ -1,0 +1,30 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "5 * * * *" # every hour
+
+permissions:
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    name: Delete old test images
+    steps:
+      - name: Fetch multi-platform package version SHAs
+        id: multi-arch-digests
+        run: |
+          package1=$(docker manifest inspect "$IMAGE_NAME" | jq -r '.manifests.[] | .digest' | paste -s -d ' ' -)
+          echo "multi-arch-digests=$package1" >> $GITHUB_OUTPUT
+      - uses: snok/container-retention-policy@v3.0.0
+        with:
+          account: snok
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image-names: ${{ env.IMAGE_NAME }}
+          image-tags: "!latest"
+          tag-selection: "untagged"
+          cut-off: 4w
+          skip-shas: ${{ steps.multi-arch-digests.outputs.multi-arch-digests }}
