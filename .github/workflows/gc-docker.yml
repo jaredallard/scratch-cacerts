@@ -12,12 +12,13 @@ env:
 jobs:
   clean:
     runs-on: ubuntu-latest
-    name: Delete old test images
+    name: Delete old tags
     steps:
       - name: Fetch multi-platform package version SHAs
         id: multi-arch-digests
         run: |
-          package1=$(docker manifest inspect "$IMAGE_NAME" | jq -r '.manifests.[] | .digest' | paste -s -d ' ' -)
+          set -euo pipefail
+          package1=$(docker manifest inspect "$IMAGE_NAME" | jq -r '.manifests[].digest' | paste -s -d ' ' -)
           echo "multi-arch-digests=$package1" >> $GITHUB_OUTPUT
       - uses: snok/container-retention-policy@v3.0.0
         with:
