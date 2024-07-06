@@ -1,3 +1,5 @@
+name: gc-docker
+
 on:
   workflow_dispatch:
   schedule:
@@ -24,7 +26,7 @@ jobs:
         with:
           account: jaredallard
           token: ${{ secrets.GITHUB_TOKEN }}
-          image-names: ${{ env.IMAGE_NAME }}
+          image-names: ${{ github.event.repository.name }}
           image-tags: "!latest"
           tag-selection: "untagged"
           cut-off: 4w
