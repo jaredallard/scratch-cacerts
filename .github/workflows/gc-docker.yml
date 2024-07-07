@@ -3,7 +3,7 @@ name: gc-docker
 on:
   workflow_dispatch:
   schedule:
-    - cron: "5 * * * *" # every hour
+    - cron: "0 0 * * 0"
 
 permissions:
   packages: write
