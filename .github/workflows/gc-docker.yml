@@ -22,7 +22,7 @@ jobs:
           set -euo pipefail
           package1=$(docker manifest inspect "$IMAGE_NAME" | jq -r '.manifests[].digest' | paste -s -d ' ' -)
           echo "multi-arch-digests=$package1" >> $GITHUB_OUTPUT
-      - uses: snok/container-retention-policy@v3.0.0
+      - uses: snok/container-retention-policy@v3.0.1
         with:
           account: user
           token: ${{ secrets.GITHUB_TOKEN }}
